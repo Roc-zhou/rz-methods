@@ -120,6 +120,26 @@ const debouncedFn = debounce(() => {
 searchInput.addEventListener('input', debouncedFn);
 ```
 
+### throttle<T extends (...args: any[]) => any>(fn: T, delay: number)
+创建一个节流函数。
+
+参数：
+- `fn`: 要节流的函数
+- `delay`: 间隔时间（毫秒）
+
+返回：
+- 节流处理后的函数
+
+示例：
+```typescript
+const throttledFn = throttle(() => {
+  console.log('执行搜索');
+}, 300);
+
+// 快速多次调用，每 300ms 执行一次
+searchInput.addEventListener('input', throttledFn);
+```
+
 ## 开发指南
 
 ### 安装依赖

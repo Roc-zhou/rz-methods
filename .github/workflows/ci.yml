@@ -36,7 +36,7 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: dist-${{ matrix.node-version }}
+        name: dist-18.20.8
         path: dist/
 
   publish:
