@@ -1,4 +1,4 @@
-import { isEmpty, deepClone, debounce } from '../src';
+import { isEmpty, deepClone, debounce, formatDate, numberToChinese } from '../src';
 
 describe('isEmpty', () => {
   test('should return true for null and undefined', () => {
@@ -88,4 +88,23 @@ describe('debounce', () => {
     expect(cloned.b).not.toBe(obj.b);
     expect(cloned.d).not.toBe(obj.d);
   });
+
+
 });
+
+describe('formatDate', () => {
+  test('should format date correctly', () => {
+    expect(formatDate(1760683986000)).toBe('2025-10-17 14:53:06');
+  });
+  test('should format date correctly', () => {
+    expect(formatDate(1760683986000, 'YYYY-MM-DD')).toBe('2025-10-17');
+  });
+})
+
+describe('numberToChinese', () => {
+  test('should convert number to Chinese correctly', () => {
+    expect(numberToChinese(1001)).toBe('一零零一');
+    expect(numberToChinese(0)).toBe('零');
+    expect(numberToChinese(20189)).toBe('二零一八九');
+  });
+})
