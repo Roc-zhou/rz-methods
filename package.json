@@ -31,6 +31,14 @@
   ],
   "author": "Roc-zhou",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Roc-zhou/rz-methods.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Roc-zhou/rz-methods/issuess"
+  },
+  "homepage": "https://github.com/Roc-zhou/rz-methods/blob/main/README.md",
   "devDependencies": {
     "@babel/core": "^7.28.4",
     "@babel/preset-env": "^7.28.3",
