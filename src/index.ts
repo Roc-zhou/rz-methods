@@ -111,7 +111,7 @@ export function formatDate(
 }
 
 /**
- * 转换时间为：几秒前、几分钟前、几小时前、几天前、几年前等
+ * 转换时间为： 刚刚、几秒前、几分钟前、几小时前、几天前、几周前、几月前、几年前等
  * @param timestamp - 要转换的时间戳
  * @returns string - 转换后的字符串
  */
@@ -119,16 +119,28 @@ export function timeAgo(timestamp: string | number): string {
   const now = Date.now();
   const diff = now - new Date(timestamp).getTime();
 
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(diff / (1000 * 60));
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  if (diff < 5000) return "刚刚";
 
+  const seconds = Math.floor(diff / 1000);
   if (seconds < 60) return `${seconds}秒前`;
+
+  const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}分钟前`;
+
+  const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours}小时前`;
-  if (days < 365) return `${days}天前`;
-  return `${Math.floor(days / 365)}年前`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}天前`;
+
+  const weeks = Math.floor(days / 7);
+  if (weeks < 4) return `${weeks}周前`;
+
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}月前`;
+
+  const years = Math.floor(days / 365);
+  return `${years} 年前`;
 }
 
 /**
