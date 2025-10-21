@@ -111,6 +111,27 @@ export function formatDate(
 }
 
 /**
+ * 转换时间为：几秒前、几分钟前、几小时前、几天前、几年前等
+ * @param timestamp - 要转换的时间戳
+ * @returns string - 转换后的字符串
+ */
+export function timeAgo(timestamp: string | number): string {
+  const now = Date.now();
+  const diff = now - new Date(timestamp).getTime();
+
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(diff / (1000 * 60));
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+  if (seconds < 60) return `${seconds}秒前`;
+  if (minutes < 60) return `${minutes}分钟前`;
+  if (hours < 24) return `${hours}小时前`;
+  if (days < 365) return `${days}天前`;
+  return `${Math.floor(days / 365)}年前`;
+}
+
+/**
  * 转换时间为时间戳
  * @param date - 要转换的日期对象
  * @returns number - 时间戳
@@ -128,6 +149,15 @@ export function isArray(value: unknown): value is any[] {
   return !Array.isArray
     ? Object.prototype.toString.call(value) === "[object Array]"
     : Array.isArray(value);
+}
+
+/**
+ * 数组去重
+ * @param arr - 要去重的数组
+ * @returns T[] - 去重后的数组
+ */
+export function uniqueArray<T>(arr: T[]): T[] {
+  return Array.from(new Set(arr));
 }
 
 /**
@@ -189,4 +219,124 @@ export function numberToChinese(num: number): string {
     .split("")
     .map((digit) => chars[parseInt(digit)])
     .join("");
+}
+
+/**
+ * 对手机号进行脱敏处理
+ * @param phone - 要脱敏的手机号
+ * @returns string - 脱敏后的手机号
+ */
+export function maskPhone(phone: string): string {
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2");
+}
+
+/**
+ * 生成指定范围内的随机数
+ * @param min - 最小值
+ * @param max - 最大值
+ * @returns number - 生成的随机数
+ */
+export function randomInRange(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * 加法运算，解决浮点数精度问题
+ * @param a - 第一个加数
+ * @param b - 第二个加数
+ * @returns number - 和
+ */
+export function preciseAdd(a: number, b: number): number {
+  const factor = Math.pow(10, Math.max(decimalPlaces(a), decimalPlaces(b)));
+  return (Math.round(a * factor) + Math.round(b * factor)) / factor;
+
+  function decimalPlaces(num: number): number {
+    const match = num.toString().match(/(?:\.(\d+))?$/);
+    return match && match[1] ? match[1].length : 0;
+  }
+}
+
+/**
+ * 减法运算，解决浮点数精度问题
+ * @param a - 第一个加数
+ * @param b - 第二个加数
+ * @returns number - 差
+ */
+export function preciseSubtract(a: number, b: number): number {
+  const factor = Math.pow(10, Math.max(decimalPlaces(a), decimalPlaces(b)));
+  return (Math.round(a * factor) - Math.round(b * factor)) / factor;
+
+  function decimalPlaces(num: number): number {
+    const match = num.toString().match(/(?:\.(\d+))?$/);
+    return match && match[1] ? match[1].length : 0;
+  }
+}
+
+/**
+ * 乘法运算，解决浮点数精度问题
+ * @param a - 第一个乘数
+ * @param b - 第二个乘数
+ * @returns number - 积
+ */
+export function preciseMultiply(a: number, b: number): number {
+  const totalDecimalPlaces = decimalPlaces(a) + decimalPlaces(b);
+  const intA = Number(a.toString().replace(".", ""));
+  const intB = Number(b.toString().replace(".", ""));
+  return (intA * intB) / Math.pow(10, totalDecimalPlaces);
+
+  function decimalPlaces(num: number): number { 
+    const match = num.toString().match(/(?:\.(\d+))?$/);
+    return match && match[1] ? match[1].length : 0;
+  }
+}
+
+/**
+ * 除法运算，解决浮点数精度问题
+ * @param a - 第一个除数
+ * @param b - 第二个除数
+ * @returns number - 商
+ */
+export function preciseDivide(a: number, b: number): number {
+  const totalDecimalPlaces = decimalPlaces(a) - decimalPlaces(b);
+  const intA = Number(a.toString().replace(".", ""));
+  const intB = Number(b.toString().replace(".", ""));
+  return (intA / intB) * Math.pow(10, totalDecimalPlaces);
+
+  function decimalPlaces(num: number): number {
+    const match = num.toString().match(/(?:\.(\d+))?$/);
+    return match && match[1] ? match[1].length : 0;
+  }
+}
+
+/**
+ * 拼接 url 参数
+ * @param url - 基础 URL
+ * @param params - 参数对象
+ * @returns string - 拼接后的 URL
+ */
+export function joinUrl(url: string, params: { [key: string]: any }): string {
+  const queryString = Object.keys(params)
+    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+    .join("&");
+  return `${url}?${queryString}`;
+}
+
+/**
+ * 版本比较
+ * @param v1 - 第一个版本号 1.0.0
+ * @param v2 - 第二个版本号 1.0.1
+ * @returns number - 比较结果 1: v1>v2, -1: v1<v2, 0: v1=v2
+ */
+export function compareVersion(v1: string, v2: string): number {
+  const v1Parts = v1.split(".").map(Number);
+  const v2Parts = v2.split(".").map(Number);
+  const len = Math.max(v1Parts.length, v2Parts.length);
+
+  for (let i = 0; i < len; i++) {
+    const part1 = v1Parts[i] || 0;
+    const part2 = v2Parts[i] || 0;
+    if (part1 > part2) return 1;
+    if (part1 < part2) return -1;
+  }
+  return 0;
 }

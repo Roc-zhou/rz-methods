@@ -1,4 +1,4 @@
-import { isEmpty, deepClone, debounce, formatDate, numberToChinese } from '../src';
+import { isEmpty, deepClone, debounce, formatDate, numberToChinese, preciseAdd, timeAgo, compareVersion } from '../src';
 
 describe('isEmpty', () => {
   test('should return true for null and undefined', () => {
@@ -107,4 +107,34 @@ describe('numberToChinese', () => {
     expect(numberToChinese(0)).toBe('零');
     expect(numberToChinese(20189)).toBe('二零一八九');
   });
+})
+
+// 加法
+describe('preciseAdd', () => {
+  test('should add two numbers precisely', () => {
+    expect(preciseAdd(0.1, 0.2)).toBe(0.3);
+    expect(preciseAdd(1.005, 0.005)).toBe(1.01);
+    expect(preciseAdd(123456789.123456, 0.876544)).toBe(123456790);
+  });
+});
+
+// 时间格式化
+describe('timeAgo', () => {
+  test('should return correct time ago string', () => {
+    const now = Date.now();
+
+    expect(timeAgo(now - 60 * 1000)).toBe('1分钟前');
+    expect(timeAgo(now - 90 * 1000)).toBe('1分钟前');
+    expect(timeAgo(now - 120 * 1000)).toBe('2分钟前');
+    expect(timeAgo(now - 3600 * 1000)).toBe('1小时前');
+  });
+});
+
+// 版本比较
+describe('compareVersion', () => {
+  test('should compare versions correctly', () => {
+    expect(compareVersion('1.0.0', '1.0.0')).toBe(0);
+    expect(compareVersion('1.0.0', '1.0.1')).toBe(-1);
+    expect(compareVersion('1.0.1', '1.0.0')).toBe(1);
+  })
 })

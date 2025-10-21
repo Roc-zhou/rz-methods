@@ -7,8 +7,6 @@
 - TypeScript 支持和类型定义
 - 支持 Tree Shaking，可按需引入
 - 支持多种模块格式 (ESM/CommonJS/UMD)
-- 零依赖
-- 100% 测试覆盖率
 - 支持所有现代浏览器和 Node.js
 
 ## 安装
