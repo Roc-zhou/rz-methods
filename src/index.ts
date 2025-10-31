@@ -213,10 +213,18 @@ export function generateUUID(): string {
 
 /**
  * 生成随机颜色
- * @returns string - 生成的随机颜色
+ * @returns string - 生成的随机颜色 #ffffff
  */
 export function randomColor(): string {
   return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+}
+
+/**
+ * 生成随机 rgb 颜色
+ * @returns string - 生成的随机颜色 rgb(255,255,255)
+ */
+export function randomRgbColor(): string {
+  return `rgb(${Math.floor(Math.random() * 256)},${Math.floor(Math.random() * 256)},${Math.floor(Math.random() * 256)})`;
 }
 
 /**
@@ -296,7 +304,7 @@ export function preciseMultiply(a: number, b: number): number {
   const intB = Number(b.toString().replace(".", ""));
   return (intA * intB) / Math.pow(10, totalDecimalPlaces);
 
-  function decimalPlaces(num: number): number { 
+  function decimalPlaces(num: number): number {
     const match = num.toString().match(/(?:\.(\d+))?$/);
     return match && match[1] ? match[1].length : 0;
   }
@@ -328,7 +336,9 @@ export function preciseDivide(a: number, b: number): number {
  */
 export function joinUrl(url: string, params: { [key: string]: any }): string {
   const queryString = Object.keys(params)
-    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+    .map(
+      (key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
+    )
     .join("&");
   return `${url}?${queryString}`;
 }
@@ -351,4 +361,70 @@ export function compareVersion(v1: string, v2: string): number {
     if (part1 < part2) return -1;
   }
   return 0;
+}
+
+/**
+ * localStorage
+ * @param key - 存储的键
+ * @param value - 存储的值
+ * @param time - 过期时间 (毫秒)
+ */
+export function setLocalStorage<T>(key: string, value: T, time?: number): void {
+  const data = {
+    value,
+    expire: time ? Date.now() + time : null,
+  };
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+/**
+ * 从 localStorage 获取值
+ * @param key - 存储的键
+ * @returns T | null - 获取的值
+ */
+export function getLocalStorage<T>(key: string): T | null {
+  const item = localStorage.getItem(key);
+  if (!item) return null;
+
+  const data = JSON.parse(item);
+  if (data.expire && Date.now() > data.expire) {
+    localStorage.removeItem(key);
+    return null;
+  }
+  return JSON.parse(item).value as T;
+}
+
+/**
+ * 删除 localStorage 中的指定键
+ * @param key - 要删除的键
+ */
+export function removeLocalStorage(key: string): void {
+  localStorage.removeItem(key);
+}
+
+/**
+ * 设置 sessionStorage
+ * @param key - 存储的键
+ * @param value - 存储的值
+ */
+export function setSessionStorage<T>(key: string, value: T): void {
+  sessionStorage.setItem(key, JSON.stringify(value));
+}
+
+/**
+ * 从 sessionStorage 获取值
+ * @param key - 存储的键
+ * @returns T | null - 获取的值
+ */
+export function getSessionStorage<T>(key: string): T | null {
+  const item = sessionStorage.getItem(key);
+  return item ? (JSON.parse(item) as T) : null;
+}
+
+/**
+ * 删除 sessionStorage 中的指定键
+ * @param key - 要删除的键
+ */
+export function removeSessionStorage(key: string): void {
+  sessionStorage.removeItem(key);
 }
