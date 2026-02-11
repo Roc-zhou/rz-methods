@@ -543,3 +543,16 @@ export function getSessionStorage<T>(key: string): T | null {
 export function removeSessionStorage(key: string): void {
   sessionStorage.removeItem(key);
 }
+
+export function getDevice() {
+  const ua = navigator.userAgent.toLowerCase();
+  return {
+    isAndroid: ua.indexOf('android') > -1 || ua.indexOf('adr') > -1, // android终端
+    isIOS: !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), // ios终端
+    isWeixin: ua.indexOf('micromessenger') > -1, // 微信浏览器
+    isWeibo: ua.indexOf('weibo') > -1, // 微博浏览器
+    isQQ: ua.indexOf('qq') > -1, // QQ浏览器
+    isMobile: !!ua.match(/applewebkit.*mobile.*/), // 是否为移动终端
+    isPC: !ua.match(/applewebkit.*mobile.*/) // 是否为PC终端
+  }
+}
