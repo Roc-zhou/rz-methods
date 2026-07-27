@@ -48,11 +48,8 @@ export function deepClone<T>(obj: T): T {
  * @param delay - 延迟时间（毫秒）
  * @returns - 防抖处理后的函数
  */
-export function debounce<T extends (...args: any[]) => any>(
-  fn: T,
-  delay: number
-): (...args: Parameters<T>) => void {
-  let timeoutId: NodeJS.Timeout | undefined;
+export function debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
   return function (this: any, ...args: Parameters<T>): void {
     if (timeoutId) {
@@ -72,10 +69,7 @@ export function debounce<T extends (...args: any[]) => any>(
  * @returns - 节流处理后的函数
  */
 
-export function throttle<T extends (...args: any[]) => any>(
-  fn: T,
-  delay: number
-): (...args: Parameters<T>) => void {
+export function throttle<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void {
   let lastExecTime = 0;
 
   return function (this: any, ...args: Parameters<T>): void {
@@ -93,10 +87,7 @@ export function throttle<T extends (...args: any[]) => any>(
  * @param format - 格式字符串，例如 'YYYY-MM-DD HH:mm:ss'
  * @returns string - 格式化后的日期字符串
  */
-export function formatDate(
-  timestamp: string | number,
-  format = "YYYY-MM-DD HH:mm:ss"
-): string {
+export function formatDate(timestamp: string | number, format = "YYYY-MM-DD HH:mm:ss"): string {
   const date = new Date(timestamp);
   const map: { [key: string]: string } = {
     YYYY: date.getFullYear().toString(),
@@ -211,6 +202,11 @@ export function generateUUID(): string {
   });
 }
 
+// 生成uuid 新：使用 crypto API
+export function generateUUIDNew(): string {
+  return crypto.randomUUID();
+}
+
 /**
  * 生成随机颜色
  * @returns string - 生成的随机颜色 #ffffff
@@ -249,6 +245,8 @@ export function numberToChinese(num: number): string {
  * @returns string - 脱敏后的手机号
  */
 export function maskPhone(phone: string): string {
+  // 校验手机号格式
+  if (!/^1[3-9]\d{9}$/.test(phone)) return phone;
   return phone.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2");
 }
 
@@ -367,7 +365,7 @@ export function preciseSubtract(a: number, b: number, decimals?: number): number
  * preciseMultiply(1.005, 2, 2)     // => 2.01
  * preciseMultiply(3, 4)            // => 12
  */
-export function preciseMultiply(a: number, b: number, decimals?: number ): number {
+export function preciseMultiply(a: number, b: number, decimals?: number): number {
   // 处理 Infinity / NaN
   if (!isFinite(a) || !isFinite(b)) {
     return a * b;
@@ -422,7 +420,7 @@ export function preciseMultiply(a: number, b: number, decimals?: number ): numbe
  * preciseDivide(1, 3, 5) // => 0.33333
  * preciseDivide(10, 3, 2) // => 3.33
  */
-export function preciseDivide( dividend: number, divisor: number, decimals: number = 10 ): number {
+export function preciseDivide(dividend: number, divisor: number, decimals: number = 10): number {
   if (divisor === 0) {
     throw new Error("Division by zero is not allowed.");
   }
@@ -544,15 +542,64 @@ export function removeSessionStorage(key: string): void {
   sessionStorage.removeItem(key);
 }
 
-export function getDevice() {
-  const ua = navigator.userAgent.toLowerCase();
+// 定义设备信息的类型
+interface DeviceInfo {
+  isAndroid: boolean;
+  isIOS: boolean;
+  isWeixin: boolean;
+  isWeibo: boolean;
+  isQQ: boolean;
+  isMobile: boolean;
+  isPC: boolean;
+  isHarmony: boolean;
+  isWeixinMiniProgram: boolean;
+}
+
+/**
+ * 检查是否在微信小程序内
+ * @returns {Promise<boolean>}
+ */
+export function checkMiniProgram(): Promise<boolean> {
+  return new Promise((resolve) => {
+    // 1. 如果 wx 对象存在且包含 getEnv 方法，则使用官方API
+    if (typeof wx !== 'undefined' && wx.miniProgram && typeof wx.miniProgram.getEnv === 'function') {
+      wx.miniProgram.getEnv((res: { miniprogram: boolean }) => {
+        resolve(res.miniprogram === true);
+      });
+    } else {
+      // 2. 降级方案：通过 User-Agent 判断
+      const ua = navigator.userAgent.toLowerCase();
+      resolve(/micromessenger/.test(ua) || /miniprogram/.test(ua));
+    }
+  });
+}
+
+/**
+ * 异步获取设备信息
+ * @returns {Promise<DeviceInfo>} 设备信息对象
+ */
+export async function getDevice(): Promise<DeviceInfo> {
+  const ua: string = navigator.userAgent.toLowerCase();
+
+  // 检测是否在微信小程序内
+  const isWeixinMiniProgram = await checkMiniProgram();
+
   return {
-    isAndroid: ua.indexOf('android') > -1 || ua.indexOf('adr') > -1, // android终端
-    isIOS: !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/i), // ios终端
-    isWeixin: ua.indexOf('micromessenger') > -1, // 微信浏览器
-    isWeibo: ua.indexOf('weibo') > -1, // 微博浏览器
-    isQQ: ua.indexOf('qq') > -1, // QQ浏览器
-    isMobile: !!ua.match(/applewebkit.*mobile.*/), // 是否为移动终端
-    isPC: !ua.match(/applewebkit.*mobile.*/) // 是否为PC终端
-  }
+    // 终端类型检测
+    isAndroid: /android|adr/i.test(ua),
+    isIOS: /\(i[^;]+;( U;)? CPU.+Mac OS X/i.test(ua),
+    isHarmony: /openharmony|harmonyos/i.test(ua),
+
+    // 社交应用环境检测
+    isWeixin: /micromessenger/i.test(ua),
+    isWeibo: /weibo/i.test(ua),
+    isQQ: /qq\//i.test(ua), // 使用 'qq/' 更精确，避免误判
+
+    // 设备类型检测
+    isMobile: /applewebkit.*mobile.*/i.test(ua),
+    isPC: !/applewebkit.*mobile.*/i.test(ua),
+
+    // 小程序环境
+    isWeixinMiniProgram,
+  };
 }
