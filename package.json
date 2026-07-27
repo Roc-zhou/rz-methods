@@ -10,7 +10,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "npm run build:clean && npm run build:bundle && npm run build:types",
+    "build": "npm run build:clean && npm run build:bundle && npm run build:types && npm run build:exports",
     "build:clean": "rimraf dist",
     "build:bundle": "rollup -c",
     "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
@@ -21,7 +21,8 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "patch": "npm version patch",
     "minor": "npm version minor",
-    "major": "npm version major"
+    "major": "npm version major",
+    "build:exports": "node scripts/generate-exports.js"
   },
   "keywords": [
     "utility",
@@ -61,5 +62,58 @@
     "ts-jest": "^29.1.0",
     "typescript": "~5.1.6"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./package.json": "./package.json",
+    "./array": {
+      "import": "./dist/esm/array/index.js",
+      "require": "./dist/cjs/array/index.js",
+      "types": "./dist/types/array/index.d.ts"
+    },
+    "./browser": {
+      "import": "./dist/esm/browser/index.js",
+      "require": "./dist/cjs/browser/index.js",
+      "types": "./dist/types/browser/index.d.ts"
+    },
+    "./core": {
+      "import": "./dist/esm/core/index.js",
+      "require": "./dist/cjs/core/index.js",
+      "types": "./dist/types/core/index.d.ts"
+    },
+    "./date": {
+      "import": "./dist/esm/date/index.js",
+      "require": "./dist/cjs/date/index.js",
+      "types": "./dist/types/date/index.d.ts"
+    },
+    "./math": {
+      "import": "./dist/esm/math/index.js",
+      "require": "./dist/cjs/math/index.js",
+      "types": "./dist/types/math/index.d.ts"
+    },
+    "./random": {
+      "import": "./dist/esm/random/index.js",
+      "require": "./dist/cjs/random/index.js",
+      "types": "./dist/types/random/index.d.ts"
+    },
+    "./secret": {
+      "import": "./dist/esm/secret/index.js",
+      "require": "./dist/cjs/secret/index.js",
+      "types": "./dist/types/secret/index.d.ts"
+    },
+    "./storage": {
+      "import": "./dist/esm/storage/index.js",
+      "require": "./dist/cjs/storage/index.js",
+      "types": "./dist/types/storage/index.d.ts"
+    },
+    "./storage/*": {
+      "import": "./dist/esm/storage/*.js",
+      "require": "./dist/cjs/storage/*.js",
+      "types": "./dist/types/storage/*.d.ts"
+    }
+  }
 }
