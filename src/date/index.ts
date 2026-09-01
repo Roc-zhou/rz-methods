@@ -4,19 +4,24 @@
  * @param format - 格式字符串，例如 'YYYY-MM-DD HH:mm:ss'
  * @returns string - 格式化后的日期字符串
  */
-export function formatDate(timestamp: string | number, format = "YYYY-MM-DD HH:mm:ss"): string {
-  const date = new Date(timestamp);
-  const map: { [key: string]: string } = {
-    YYYY: date.getFullYear().toString(),
-    MM: (date.getMonth() + 1).toString().padStart(2, "0"),
-    DD: date.getDate().toString().padStart(2, "0"),
-    HH: date.getHours().toString().padStart(2, "0"),
-    mm: date.getMinutes().toString().padStart(2, "0"),
-    ss: date.getSeconds().toString().padStart(2, "0"),
-  };
+export function formatDate(date: Date | string | number, format: string = 'YYYY-MM-DD HH:mm:ss'): string {
+  // 修复 iOS 无法解析带有连字符 '-' 字符串日期的问题
+  const parsedDate = typeof date === 'string' ? date.replace(/-/g, '/') : date;
+  const d = new Date(parsedDate);
 
-  return format.replace(/YYYY|MM|DD|HH|mm|ss/g, (matched) => map[matched]);
-}
+  // 如果日期非法，直接返回空字符串
+  if (isNaN(d.getTime())) return '';
+
+  const map: Record<string, string> = {
+    'YYYY': String(d.getFullYear()),
+    'MM': String(d.getMonth() + 1).padStart(2, '0'),
+    'DD': String(d.getDate()).padStart(2, '0'),
+    'HH': String(d.getHours()).padStart(2, '0'),
+    'mm': String(d.getMinutes()).padStart(2, '0'),
+    'ss': String(d.getSeconds()).padStart(2, '0')
+  };
+  return format.replace(/YYYY|MM|DD|HH|mm|ss/g, matched => map[matched]);
+};
 
 /**
  * 转换时间为： 刚刚、几秒前、几分钟前、几小时前、几天前、几周前、几月前、几年前等
