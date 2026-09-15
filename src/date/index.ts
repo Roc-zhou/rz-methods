@@ -4,24 +4,44 @@
  * @param format - 格式字符串，例如 'YYYY-MM-DD HH:mm:ss'
  * @returns string - 格式化后的日期字符串
  */
-export function formatDate(date: Date | string | number, format: string = 'YYYY-MM-DD HH:mm:ss'): string {
-  // 修复 iOS 无法解析带有连字符 '-' 字符串日期的问题
-  const parsedDate = typeof date === 'string' ? date.replace(/-/g, '/') : date;
-  const d = new Date(parsedDate);
+export function formatDate(
+  date: Date | string | number | null | undefined,
+  format: string = 'YYYY-MM-DD HH:mm:ss'
+): string {
+  if (!date) return '';
 
-  // 如果日期非法，直接返回空字符串
+  let d: Date;
+
+  if (date instanceof Date) {
+    d = date;
+  } else if (typeof date === 'number') {
+    d = new Date(date);
+  } else {
+    // 1. 处理纯数字构成的字符串 (例如 "1600000000000")
+    if (/^\d+$/.test(date)) {
+      d = new Date(Number(date));
+    } else {
+      // 2. 修复 iOS 无法解析 '2026-09-15' 带有连字符的问题
+      // 标准的 ISO 格式 '2026-09-15T10:52:00' 应该保留 '-', 只有纯 '-' 的日期需要替换
+      const normalizedDate = date.includes('T') ? date : date.replace(/-/g, '/');
+      d = new Date(normalizedDate);
+    }
+  }
+
+  // 检查日期合法性
   if (isNaN(d.getTime())) return '';
 
   const map: Record<string, string> = {
-    'YYYY': String(d.getFullYear()),
-    'MM': String(d.getMonth() + 1).padStart(2, '0'),
-    'DD': String(d.getDate()).padStart(2, '0'),
-    'HH': String(d.getHours()).padStart(2, '0'),
-    'mm': String(d.getMinutes()).padStart(2, '0'),
-    'ss': String(d.getSeconds()).padStart(2, '0')
+    YYYY: String(d.getFullYear()),
+    MM: String(d.getMonth() + 1).padStart(2, '0'),
+    DD: String(d.getDate()).padStart(2, '0'),
+    HH: String(d.getHours()).padStart(2, '0'),
+    mm: String(d.getMinutes()).padStart(2, '0'),
+    ss: String(d.getSeconds()).padStart(2, '0')
   };
+
   return format.replace(/YYYY|MM|DD|HH|mm|ss/g, matched => map[matched]);
-};
+}
 
 /**
  * 转换时间为： 刚刚、几秒前、几分钟前、几小时前、几天前、几周前、几月前、几年前等
