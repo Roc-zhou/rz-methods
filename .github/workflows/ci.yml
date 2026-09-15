@@ -5,16 +5,14 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  # 允许手动触发工作流
   workflow_dispatch:
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
 
-    # 仅 main 分支 push 时才发布，PR / 其他分支只跑构建
     permissions:
-      id-token: write      # OIDC，用于 provenance
+      id-token: write
       contents: read
 
     steps:
@@ -25,7 +23,7 @@ jobs:
       with:
         node-version: '22'
         cache: 'npm'
-        registry-url: 'https://registry.npmjs.org'
+        # ⚠️ 不写 registry-url，避免 setup-node 生成带 _authToken 的 ~/.npmrc
 
     - name: Install dependencies
       run: npm ci
@@ -39,9 +37,16 @@ jobs:
     - name: Build
       run: npm run build
 
-    # ★ 关键：publish 前删掉带 _authToken 的 .npmrc，强制走 OIDC
-    - name: Remove .npmrc (force OIDC)
-      run: rm -f .npmrc
+    # 清空所有可能干扰 OIDC 的 .npmrc，并显式设置 registry
+    - name: Force OIDC (clean npmrc)
+      run: |
+        rm -f .npmrc
+        rm -f ~/.npmrc
+        npm config set registry https://registry.npmjs.org/
+        npm config delete //registry.npmjs.org/:_authToken 2>/dev/null || true
+        echo "=== npmrc after clean ==="
+        cat ~/.npmrc 2>/dev/null || echo "(no home .npmrc)"
+        npm config list
 
     - name: Publish to NPM with provenance
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
