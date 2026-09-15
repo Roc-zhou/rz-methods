@@ -5,20 +5,18 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  # 允许手动触发工作流
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
 
-    - name: Use Node.js 18.20.8
+    - name: Use Node.js 22
       uses: actions/setup-node@v4
       with:
-        node-version: '18.20.8'
+        node-version: '22'
         cache: 'npm'
 
     - name: Install dependencies
@@ -36,14 +34,13 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: dist-18.20.8
+        name: dist
         path: dist/
 
   publish:
     needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    # 1. 核心：必须显式声明这一行以授予生成 OIDC 令牌的权限
     permissions:
       id-token: write
       contents: read
@@ -51,22 +48,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Use Node.js
+    - name: Use Node.js 22
       uses: actions/setup-node@v4
       with:
-        node-version: '18.20.8'
-        # 2. 移除此处的 registry-url，因为不需要依赖 .npmrc 密钥配置
+        node-version: '22'
+        registry-url: 'https://registry.npmjs.org'
 
-    # 3. 核心：必须安装支持 Provenance 的最新版 npm（Node 18 自带的 v10 版本过低）
-    - name: Upgrade npm to latest
-      run: npm install -g npm@latest
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4    # ✅ 下载用 download
+      with:
+        name: dist
+        path: dist/
 
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Build
-      run: npm run build
-
-    # 4. 核心：发布命令添加 --provenance 参数，并且完全移除 env: NODE_AUTH_TOKEN
-    - name: Publish to NPM
-      run: npm publish --provenance
+    - name: Publish to NPM with provenance
+      run: npm publish --provenance --access public
