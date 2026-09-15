@@ -23,7 +23,14 @@ jobs:
       with:
         node-version: '22'
         cache: 'npm'
-        # ⚠️ 不写 registry-url，避免 setup-node 生成带 _authToken 的 ~/.npmrc
+        # 不写 registry-url
+
+    # ★★★ 关键：升级 npm 到 >= 11.5.1 才支持 OIDC Trusted Publishing
+    - name: Upgrade npm for OIDC Trusted Publishing
+      run: npm install -g npm@latest
+
+    - name: Verify npm version
+      run: npm --version
 
     - name: Install dependencies
       run: npm ci
@@ -37,16 +44,13 @@ jobs:
     - name: Build
       run: npm run build
 
-    # 清空所有可能干扰 OIDC 的 .npmrc，并显式设置 registry
+    # 清理任何可能干扰 OIDC 的 .npmrc auth 行
     - name: Force OIDC (clean npmrc)
       run: |
         rm -f .npmrc
         rm -f ~/.npmrc
         npm config set registry https://registry.npmjs.org/
         npm config delete //registry.npmjs.org/:_authToken 2>/dev/null || true
-        echo "=== npmrc after clean ==="
-        cat ~/.npmrc 2>/dev/null || echo "(no home .npmrc)"
-        npm config list
 
     - name: Publish to NPM with provenance
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
