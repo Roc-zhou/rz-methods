@@ -39,6 +39,10 @@ jobs:
     - name: Build
       run: npm run build
 
+    # ★ 关键：publish 前删掉带 _authToken 的 .npmrc，强制走 OIDC
+    - name: Remove .npmrc (force OIDC)
+      run: rm -f .npmrc
+
     - name: Publish to NPM with provenance
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: npm publish --provenance --access public
