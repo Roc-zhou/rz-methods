@@ -120,19 +120,19 @@ describe("numberToChinese", () => {
 // 加法
 describe("preciseAdd", () => {
   test("should add two numbers precisely", () => {
-    expect(preciseAdd(0.1, 0.2)).toBe(0.3);
-    expect(preciseAdd(1.005, 0.005)).toBe(1.01);
-    expect(preciseAdd(123456789.123456, 0.876544)).toBe(123456790);
+    expect(preciseAdd(0.1, 0.2)).toBe('0.3');
+    expect(preciseAdd(1.005, 0.005)).toBe('1.01');
+    expect(preciseAdd(123456789.123456, 0.876544)).toBe('123456790.00');
   });
 });
 
 // 除法
 describe("preciseDivide", () => {
   test("should divide two numbers precisely", () => {
-    expect(preciseDivide(1, 3, 5)).toBe(0.33333);
-    expect(preciseDivide(10, 3, 2)).toBe(3.33);
-    expect(preciseDivide(6, 6, 2)).toBe(1);
-    expect(() => preciseDivide(10, 0)).toThrow("Division by zero is not allowed.");
+    expect(preciseDivide(1, 3, 5)).toBe('0.33333');
+    expect(preciseDivide(10, 3, 2)).toBe('3.33');
+    expect(preciseDivide(6, 6, 2)).toBe('1.00');
+    expect(() => preciseDivide(10, 0)).toThrow("除数不能为0");
   });
 });
 

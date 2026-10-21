@@ -37,11 +37,7 @@ function parseAmount(val: string | number): AmountParsed {
  * @param decimals
  * @returns
  */
-function bigIntToAmountStr(
-  resBig: bigint,
-  factor: bigint,
-  decimals: number
-): string {
+function bigIntToAmountStr(resBig: bigint, factor: bigint, decimals: number): string {
   const isNeg = resBig < 0n;
   const abs = isNeg ? -resBig : resBig;
   const int = abs / factor;
@@ -54,12 +50,7 @@ function bigIntToAmountStr(
 /**
  * 加减内部通用计算
  */
-function calcAddSub(
-  a: string | number,
-  b: string | number,
-  decimals: number,
-  op: (x: bigint, y: bigint) => bigint
-): string {
+function calcAddSub(a: string | number, b: string | number, decimals: number, op: (x: bigint, y: bigint) => bigint): string {
   const pa = parseAmount(a);
   const pb = parseAmount(b);
   const lenA = pa.decPart.length;
@@ -91,11 +82,7 @@ function calcAddSub(
  * @param decimals 保留小数位 默认2
  * @returns 金额字符串
  */
-export function preciseAdd(
-  a: string | number,
-  b: string | number,
-  decimals = 2
-): string {
+export function preciseAdd(a: string | number, b: string | number, decimals = 2): string {
   return calcAddSub(a, b, decimals, (x, y) => x + y);
 }
 
@@ -106,11 +93,7 @@ export function preciseAdd(
  * @param decimals 保留小数位 默认2
  * @returns 金额字符串
  */
-export function preciseSubtract(
-  a: string | number,
-  b: string | number,
-  decimals = 2
-): string {
+export function preciseSubtract(a: string | number, b: string | number, decimals = 2): string {
   return calcAddSub(a, b, decimals, (x, y) => x - y);
 }
 
@@ -121,11 +104,7 @@ export function preciseSubtract(
  * @param decimals 保留小数位 默认2
  * @returns 金额字符串
  */
-export function preciseMultiply(
-  a: string | number,
-  b: string | number,
-  decimals = 2
-): string {
+export function preciseMultiply(a: string | number, b: string | number, decimals = 2): string {
   const pa = parseAmount(a);
   const pb = parseAmount(b);
   const lenA = pa.decPart.length;
@@ -155,11 +134,7 @@ export function preciseMultiply(
  * @param decimals 保留小数位 默认2
  * @returns 金额字符串
  */
-export function preciseDivide(
-  a: string | number,
-  b: string | number,
-  decimals = 2
-): string {
+export function preciseDivide(a: string | number, b: string | number, decimals = 2): string {
   const pa = parseAmount(a);
   const pb = parseAmount(b);
   const lenA = pa.decPart.length;
