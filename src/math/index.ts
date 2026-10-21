@@ -137,7 +137,7 @@ export function preciseMultiply(a: string | number, b: string | number, decimals
 export function preciseDivide(a: string | number, b: string | number, decimals = 2): string {
   const pa = parseAmount(a);
   const pb = parseAmount(b);
-  const lenA = pa.decPart.length;
+  // const lenA = pa.decPart.length;
   const lenB = pb.decPart.length;
 
   let bigA = BigInt(pa.intPart + pa.decPart);
